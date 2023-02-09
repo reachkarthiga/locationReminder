@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.firebase.ui.auth.AuthMethodPickerLayout
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.android.material.snackbar.Snackbar
@@ -39,14 +40,16 @@ class AuthenticationActivity : AppCompatActivity() {
 
             val providers = arrayListOf(AuthUI.IdpConfig.EmailBuilder().build(), AuthUI.IdpConfig.GoogleBuilder().build())
 
+            val layout = AuthMethodPickerLayout.Builder(R.layout.sign_in_background)
+                .setEmailButtonId(R.id.email_button)
+                .setGoogleButtonId(R.id.google_button).build()
+
             startActivityForResult(AuthUI.getInstance()
-                .createSignInIntentBuilder()
+                .createSignInIntentBuilder().setAuthMethodPickerLayout(layout)
                 .setAvailableProviders(providers)
                 .build(), SIGN_IN_REQUEST_CODE)
-        }
 
-//          TODO: a bonus is to customize the sign in flow to look nice using :
-        //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
+        }
 
     }
 
