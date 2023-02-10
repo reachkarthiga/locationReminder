@@ -2,14 +2,18 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Location
+import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -36,6 +40,8 @@ import org.koin.android.ext.android.inject
 import java.security.Permissions
 
 const val PERMISSION_REQUEST_CODE = 1
+const val CURRENT_LOCATION_CODE = 2
+
 
 class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
 
@@ -59,19 +65,48 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+
         if (!checkPermissions()) {
             askPermissions()
         }
 
+        getLocationAccess()
+//
 //        Done: add the map setup implementation
-//        TODO: zoom to the user location after taking his permission
-//        Done: add style to the map
+//        Done: zoom to the user location after taking his permission
+//        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
 //        TODO: call this function after the user confirms on the selected location
 
         onLocationSelected()
 
         return binding.root
+    }
+
+    private fun getLocationAccess() {
+
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+
+        val locationSettingsRequest = LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build()
+        val locationClient = LocationServices.getSettingsClient(requireActivity())
+
+        locationClient.checkLocationSettings(locationSettingsRequest).run {
+            addOnFailureListener {
+                if (it is ResolvableApiException) {
+                    try {
+                        it.startResolutionForResult(requireActivity(), CURRENT_LOCATION_CODE)
+                    } catch (e:Exception) {
+                        Log.d("Location", "Error getting location settings")
+                    }
+                } else {
+                    Snackbar.make(binding.selectedFragment, "Current Location is needed for this app to work", Snackbar.LENGTH_INDEFINITE)
+                        .setAction(android.R.string.ok, null).show()
+                }
+
+            }
+        }
     }
 
     private fun askPermissions() {
@@ -81,6 +116,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         }
 
         requestPermissions(permissions, PERMISSION_REQUEST_CODE)
+        getLocationAccess()
 
     }
 
@@ -94,11 +130,21 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         if ( grantResults.any {
             it ==  PackageManager.PERMISSION_DENIED
             } || grantResults.isEmpty()) {
-            Log.i("maps", "Denied")
-            Snackbar.make(binding.root, "Location Access Needed to run this app", Snackbar.LENGTH_INDEFINITE)
-                .show()
+
+            Snackbar.make(binding.selectedFragment, "Location Access Needed to run this app", Snackbar.LENGTH_INDEFINITE)
+                .setAction("Settings" , View.OnClickListener {
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", activity?.packageName, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    })
+                }).show()
+
         } else {
-            checkPermissions()
+
+           if (!checkPermissions() ){
+               askPermissions()
+           }
+
         }
 
     }
@@ -150,13 +196,24 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         else -> super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        val home = LatLng(13.033569, 80.137850)
-        val zoomLevel = 15f
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomLevel))
+        if (!checkPermissions()) {
+            askPermissions()
+        } else {
+            map.isMyLocationEnabled = true
+            map.uiSettings?.isMyLocationButtonEnabled = true
+        }
+       val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationClient.lastLocation.addOnCompleteListener {
+            if (it.isSuccessful) {
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.result.latitude, it.result.longitude), 15f))
+            }
+        }
 
     }
+
 
 
 }
