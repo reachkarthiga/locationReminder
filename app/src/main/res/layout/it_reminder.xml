@@ -48,14 +48,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize= "end"
+                android:maxWidth="200dp"
                 android:gravity="center"
-                android:text="@{item.location}"
+                android:text="@{item.location.trim()}"
                 android:textColor="@color/colorAccent"
                 android:textSize="@dimen/text_size_small"
                 app:layout_constraintBottom_toBottomOf="@+id/description"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/title"
-                tools:text="Location" />
+                tools:text="Location"
+
+                />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

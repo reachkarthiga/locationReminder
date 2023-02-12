@@ -1,8 +1,10 @@
 package com.udacity.project4.locationreminders.data.dto
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 /**
@@ -15,6 +17,7 @@ import java.util.*
  * @param longitude     longitude of the reminder location
  * @param id          id of the reminder
  */
+
 
 @Entity(tableName = "reminders")
 data class ReminderDTO(

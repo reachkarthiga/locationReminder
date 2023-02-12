@@ -43,6 +43,7 @@ android {
     //    enabled = true
     //    enabledForTests = true
     //}
+
     buildFeatures {
         dataBinding true
     }
