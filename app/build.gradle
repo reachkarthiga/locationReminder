@@ -6,13 +6,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 32
     buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "com.udacity.project4"
         minSdkVersion 26
-        targetSdkVersion 33
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -67,6 +67,7 @@ dependencies {
     //Navigation dependencies
     implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0-alpha06'
+    testImplementation project(path: ':app')
     kapt "androidx.lifecycle:lifecycle-compiler:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$archLifecycleVersion"
@@ -137,3 +138,4 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
 
 }
+
